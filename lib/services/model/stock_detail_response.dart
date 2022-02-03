@@ -44,6 +44,15 @@ class Cup {
   int? sold;
   int? lefts;
 
+  SpicesOrCupParam toSpicesOrCupParam(){
+    return SpicesOrCupParam(
+        id :id ?? -1,
+        stock: stock ?? -1,
+        itemId: itemId ?? -1,
+        sold: sold ?? -1
+    );
+  }
+
   factory Cup.fromJson(Map<String, dynamic> json) => Cup(
         id: json["id"],
         itemId: json["itemId"],
@@ -71,6 +80,14 @@ class Milk {
   int? id;
   int? stock;
   int? itemId;
+
+  MilkParam toMilkParam(){
+    return MilkParam(
+      id :id ?? -1,
+      stock: stock ?? -1,
+      itemId: itemId ?? -1
+    );
+  }
 
   factory Milk.fromJson(Map<String, dynamic> json) => Milk(
         id: json["id"],

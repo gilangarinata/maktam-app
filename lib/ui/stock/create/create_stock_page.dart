@@ -9,6 +9,7 @@ import 'package:maktampos/ui/stock/create/create_stock_page_content_information.
 import 'package:maktampos/ui/stock/stock_bloc.dart';
 import 'package:maktampos/ui/stock/stock_event.dart';
 import 'package:maktampos/utils/my_snackbar.dart';
+import 'package:maktampos/utils/number_utils.dart';
 import 'package:maktampos/utils/screen_utils.dart';
 import 'package:maktampos/utils/time_utils.dart';
 import 'package:maktampos/widget/progress_loading.dart';
@@ -25,7 +26,7 @@ class CreateStockPage extends StatefulWidget {
   _CreateStockPageState createState() => _CreateStockPageState();
 }
 
-class _CreateStockPageState extends State<CreateStockPage> {
+class _CreateStockPageState extends State<CreateStockPage> with SingleTickerProviderStateMixin {
   bool _isLoading = false;
   bool _createLoading = false;
   List<CategoryItemResponse> _categoryItems = [];
@@ -37,12 +38,17 @@ class _CreateStockPageState extends State<CreateStockPage> {
   final List<SpicesOrCupParam> _itemSpices = [];
   final List<SpicesOrCupParam> _itemCups = [];
 
+  var soldTotal = 0;
+
+  // late TabController controller;
+
   late StockBloc bloc;
 
   @override
   void initState() {
     super.initState();
     bloc = BlocProvider.of<StockBloc>(context);
+
     initStockParam();
     getStockDetails();
   }
@@ -58,6 +64,29 @@ class _CreateStockPageState extends State<CreateStockPage> {
   void initStockParam() {
     _stockParam =
         _stockParam.copyWith(date: TimeUtils.toServerDateTime(DateTime.now()));
+  }
+
+  void countIncome() {
+    int sum = _itemMilks
+        .map((e) => e.stock ?? 0)
+        .toList()
+        .fold(0, (p, c) => p + c);
+
+    int sumMilkPlaceReceived = _itemMilkPlace
+        .where((element) => element.type == "receive")
+        .map((e) => e.stock ?? 0)
+        .toList()
+        .fold(0, (p, c) => p + c);
+
+    int sumMilkPlaceTake = _itemMilkPlace
+        .where((element) => element.type == "take")
+        .map((e) => e.stock ?? 0)
+        .toList()
+        .fold(0, (p, c) => p + c);
+
+    setState(() {
+      soldTotal = sum + sumMilkPlaceReceived - sumMilkPlaceTake;
+    });
   }
 
   @override
@@ -106,6 +135,7 @@ class _CreateStockPageState extends State<CreateStockPage> {
                   _itemMilkPlace.clear();
                   _itemMilkPlace.addAll(milkplaces);
                   _stockParam = _stockParam.copyWith(milkPlace: _itemMilkPlace);
+                  countIncome();
                 },
                 item.categoryId,
                 item.items ?? [],
@@ -118,6 +148,7 @@ class _CreateStockPageState extends State<CreateStockPage> {
                         .removeWhere((element) => element.itemId == ItemId);
                     _itemMilks.add(itemMilkParam);
                     _stockParam = _stockParam.copyWith(milk: _itemMilks);
+                    countIncome();
           }
         },
             (itemId, stock, sold, id) {
@@ -196,7 +227,21 @@ class _CreateStockPageState extends State<CreateStockPage> {
                   date: TimeUtils.toServerDateTime(
                     _stockDetailResponse?.date,
                   ));
+              _itemMilks.addAll(
+                _stockDetailResponse?.milk?.map((e) => e.toMilkParam()).toList() ?? []
+              );
+              _itemMilkPlace.addAll(
+                  _stockDetailResponse?.milkPlace?.map((e) => e.toParam()).toList() ?? []
+              );
+              _itemCups.addAll(
+                  _stockDetailResponse?.cups?.map((e) => e.toSpicesOrCupParam()).toList() ?? []
+              );
+              _itemSpices.addAll(
+                  _stockDetailResponse?.spices?.map((e) => e.toSpicesOrCupParam()).toList() ?? []
+              );
+
               bloc.add(GetCategoriesItems());
+              countIncome();
             });
           }
         },
@@ -225,33 +270,53 @@ class _CreateStockPageState extends State<CreateStockPage> {
                 ),
               ),
             ),
-            bottomNavigationBar: Padding(
-              padding: const EdgeInsets.all(18.0),
-              child: SizedBox(
-                width: _size.width,
-                child: _createLoading
-                    ? ProgressLoading()
-                    : ElevatedButton(
-                        onPressed: () {
-                          if (widget.date != null) {
-                            if (_stockParam.isValid()) {
-                              bloc.add(UpdateStock(_stockParam));
-                            }
-                          } else {
-                            if (_stockParam.isValid()) {
-                              bloc.add(InsertStock(_stockParam));
-                            }
-                          }
-                        },
-                        child: Text(
-                          "Simpan",
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyText2
-                              ?.apply(color: Colors.white),
+            bottomNavigationBar: SizedBox(
+              width: _size.width,
+              child: _createLoading
+                  ? ProgressLoading()
+                  : Container(
+                padding: const EdgeInsets.all(18.0),
+                color: Colors.white,
+                    height: 120,
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Text("Stok Terjual Susu: "),
+                            Spacer(),
+                            Text(soldTotal.toString()),
+                          ],
                         ),
-                      ),
-              ),
+                        SizedBox(height: 10,),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                  onPressed: () {
+                                    if (widget.date != null) {
+                                      if (_stockParam.isValid()) {
+                                        bloc.add(UpdateStock(_stockParam));
+                                      }
+                                    } else {
+                                      if (_stockParam.isValid()) {
+                                        bloc.add(InsertStock(_stockParam));
+                                      }
+                                    }
+                                  },
+                                  child: Text(
+                                    "Simpan",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyText2
+                                        ?.apply(color: Colors.white),
+                                  ),
+                                ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
             ),
             body: _isLoading
                 ? ShimmerLoading()

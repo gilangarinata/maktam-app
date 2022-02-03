@@ -51,7 +51,11 @@ class _CreateSellingPageState extends State<CreateSellingPage> {
           shift: _sellingDetailResponse?.shift,
           fund: _sellingDetailResponse?.fund,
           expense: _sellingDetailResponse?.expense,
-          note: _sellingDetailResponse?.notes);
+          note: _sellingDetailResponse?.notes,
+      );
+      var itemData  = _sellingDetailResponse?.items.map((e) => e.toItemDataParam()).toList();
+      _itemDataParams.addAll(itemData ?? []);
+      countIncome();
     }
   }
 
@@ -70,18 +74,16 @@ class _CreateSellingPageState extends State<CreateSellingPage> {
   }
 
   void countIncome() {
-    if (widget.shift == null) {
-      var itemDataParams = _sellingParams.data;
-      if (itemDataParams != null) {
-        int sum = itemDataParams
+      var fund = _sellingParams.fund ?? 0;
+      var expense = _sellingParams.expense ?? 0;
+        int sum = _itemDataParams
             .map((e) => e.price * e.sold)
             .toList()
             .fold(0, (p, c) => p + c);
         setState(() {
-          income = sum;
+          income = sum - expense + fund;
+          print("fund $fund   expense $expense sum $sum inc $income" );
         });
-      }
-    }
   }
 
   @override
@@ -123,11 +125,13 @@ class _CreateSellingPageState extends State<CreateSellingPage> {
           onExpenseChanged: (int expense) {
             setState(() {
               _sellingParams = _sellingParams.copyWith(expense: expense);
+              countIncome();
             });
           },
           onFundChanged: (int fund) {
             setState(() {
               _sellingParams = _sellingParams.copyWith(fund: fund);
+              countIncome();
             });
           },
           onNotesChanged: (String notes) {
@@ -247,54 +251,59 @@ class _CreateSellingPageState extends State<CreateSellingPage> {
                 ),
               ),
             ),
-            bottomNavigationBar: Padding(
-              padding: const EdgeInsets.all(18.0),
-              child: SizedBox(
-                width: _size.width,
-                child: _createLoading
-                    ? ProgressLoading()
-                    : Container(
-                        height: 90,
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Text("Pendapatan : "),
-                                Spacer(),
-                                Text(NumberUtils.toRupiah(income.toDouble())),
-                              ],
-                            ),
-                            ElevatedButton(
-                              onPressed: () {
-                                if (widget.shift == null) {
-                                  //create STATE
-                                  if (_sellingParams.isCreateValidate()) {
-                                    bloc.add(InsertSelling(_sellingParams));
-                                  } else {
-                                    MySnackbar(context).errorSnackbar(
-                                        "Mohon periksa kembali data anda");
-                                  }
-                                } else {
-                                  if (_sellingParams.isUpdateValidate()) {
-                                    bloc.add(UpdateSelling(_sellingParams));
-                                  } else {
-                                    MySnackbar(context).errorSnackbar(
-                                        "Mohon periksa kembali data anda / id null");
-                                  }
-                                }
-                              },
-                              child: Text(
-                                "Simpan",
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyText2
-                                    ?.apply(color: Colors.white),
+            bottomNavigationBar: SizedBox(
+              width: _size.width,
+              child: _createLoading
+                  ? ProgressLoading()
+                  : Container(
+                padding: const EdgeInsets.all(18.0),
+                      color: Colors.white,
+                      height: 120,
+                      child: Column(
+                        children: [
+                          Row(
+                            children: [
+                              Text("Pendapatan : "),
+                              Spacer(),
+                              Text(NumberUtils.toRupiah(income.toDouble())),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    if (widget.shift == null) {
+                                      //create STATE
+                                      if (_sellingParams.isCreateValidate()) {
+                                        bloc.add(InsertSelling(_sellingParams));
+                                      } else {
+                                        MySnackbar(context).errorSnackbar(
+                                            "Mohon periksa kembali data anda");
+                                      }
+                                    } else {
+                                      if (_sellingParams.isUpdateValidate()) {
+                                        bloc.add(UpdateSelling(_sellingParams));
+                                      } else {
+                                        MySnackbar(context).errorSnackbar(
+                                            "Mohon periksa kembali data anda / id null");
+                                      }
+                                    }
+                                  },
+                                  child: Text(
+                                    "Simpan",
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyText2
+                                        ?.apply(color: Colors.white),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
+                            ],
+                          ),
+                        ],
                       ),
-              ),
+                    ),
             ),
             body: _isLoading
                 ? ShimmerLoading()

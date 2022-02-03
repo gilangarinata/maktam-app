@@ -21,18 +21,22 @@ class Item {
   Item({
     this.itemId,
     this.itemName,
+    this.price
   });
 
   int? itemId;
   String? itemName;
+  int? price;
 
   factory Item.fromJson(Map<String, dynamic> json) => Item(
         itemId: json["itemId"],
         itemName: json["itemName"],
+        price: json["price"],
       );
 
   Map<String, dynamic> toJson() => {
         "itemId": itemId,
         "itemName": itemName,
+        "price" : price
       };
 }

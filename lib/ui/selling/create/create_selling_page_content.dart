@@ -63,7 +63,7 @@ class _CreateSellingPageContentState extends State<CreateSellingPageContent> wit
                   border: const OutlineInputBorder(),
                 ),
                 onChanged: (value) {
-                  widget.onChange(item.itemId ?? -1, int.parse(value), 10000);
+                  widget.onChange(item.itemId ?? -1, int.parse(value), item.price);
                 },
               ),
             )

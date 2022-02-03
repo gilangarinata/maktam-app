@@ -1,3 +1,5 @@
+import 'package:maktampos/services/param/selling_param.dart';
+
 class SellingDetailResponse {
   SellingDetailResponse({
     this.id,
@@ -60,6 +62,14 @@ class DataItem {
   int? itemId;
   int? sold;
   int? price;
+
+  ItemDataParam toItemDataParam() {
+    return ItemDataParam(
+      itemId ?? -1,
+      sold ?? -1,
+      price ?? -1
+    );
+  }
 
   factory DataItem.fromJson(Map<String, dynamic> json) => DataItem(
         id: json["id"],
