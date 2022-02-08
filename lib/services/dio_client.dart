@@ -12,16 +12,16 @@ class DioClient {
     Dio _dio = Dio();
     _dio.interceptors.add(ApiInterceptors());
     if (alice != null) _dio.interceptors.add(alice.getDioInterceptor());
-    _dio.interceptors.add(
-      PrettyDioLogger(
-          requestHeader: true,
-          requestBody: true,
-          responseBody: true,
-          responseHeader: false,
-          error: true,
-          compact: true,
-          maxWidth: 90),
-    );
+    // _dio.interceptors.add(
+    //   PrettyDioLogger(
+    //       requestHeader: true,
+    //       requestBody: true,
+    //       responseBody: true,
+    //       responseHeader: false,
+    //       error: true,
+    //       compact: true,
+    //       maxWidth: 90),
+    // );
     _dio.options.contentType = 'application/json';
     _dio.options.baseUrl = Constant.baseUrl;
     _dio.options.connectTimeout = Constant.writeTimeout;

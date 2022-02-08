@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,28 +17,42 @@ import '../material_state.dart';
 
 class CreateMaterialPageContent extends StatefulWidget {
   MaterialDetailResponse? materialDetailResponse;
+  List<MaterialItem>? materialItems;
 
   var state = _CreateMaterialPageContentState();
 
   List<MaterialItemParam?> getParams() {
-    var params = state.getParams();
-    return params;
+    print("material item : $materialItems");
+    return materialItems
+        ?.map((e) {
+      if (e.stock != null && e.added != null) {
+        return e.toMaterialItemParam();
+      } else {
+        return null;
+      }
+    })
+        .toList()
+        .where((element) => element != null)
+        .toList() ?? [];
   }
 
   @override
   _CreateMaterialPageContentState createState() => state;
 
-  CreateMaterialPageContent({this.materialDetailResponse});
+  CreateMaterialPageContent({this.materialDetailResponse,this.materialItems});
 }
 
 class _CreateMaterialPageContentState extends State<CreateMaterialPageContent>
     with AutomaticKeepAliveClientMixin<CreateMaterialPageContent> {
   late MaterialBloc bloc;
-  List<MaterialItem> items = [];
-  bool _isLoading = true;
+  bool _isLoading = false;
 
-  List<MaterialItemParam?> getParams() {
-    return items
+  List<MaterialItemDetailResponse> _materialItemDetailResponse = [];
+
+  List<MaterialItemParam?>? getParams() {
+    var materialItems = widget.materialItems ?? [];
+    print("material item : $materialItems");
+    return materialItems
         .map((e) {
           if (e.stock != null && e.added != null) {
             return e.toMaterialItemParam();
@@ -53,17 +69,16 @@ class _CreateMaterialPageContentState extends State<CreateMaterialPageContent>
   void initState() {
     super.initState();
     bloc = BlocProvider.of<MaterialBloc>(context);
-    bloc.add(GetMaterialItems());
+    _materialItemDetailResponse = widget.materialDetailResponse?.items ?? [];
   }
 
   List<Widget> generateItems(TextTheme _textTheme) {
-    List<Widget> newItems = items.map((item) {
+    List<Widget> newItems = (widget.materialItems ?? []).map((item) {
       int stock = 0;
       int std = item.standard ?? 0;
 
-      var materialDetail = widget.materialDetailResponse;
-      MaterialItemDetailResponse? detailItem = materialDetail?.items
-          ?.firstWhereOrNull(
+      MaterialItemDetailResponse? detailItem = _materialItemDetailResponse
+          .firstWhereOrNull(
               (element) => element.materialId == item.materialId);
 
       String? added = detailItem?.added.toString();
@@ -93,7 +108,28 @@ class _CreateMaterialPageContentState extends State<CreateMaterialPageContent>
                   stock = int.tryParse(value) ?? 0;
                   item.stock = stock;
                   item.added = std - stock;
-                  _addedController.text = (std - stock).toString();
+                  var added = (std - stock);
+                  _addedController.text = added.toString();
+                  var materialDetail = _materialItemDetailResponse.firstWhereOrNull((element) => element.materialId == item.materialId);
+                  if(materialDetail == null){
+                    _materialItemDetailResponse.add(
+                      MaterialItemDetailResponse(
+                        id: null,
+                        materialId: item.materialId,
+                        name: item.materialName,
+                        stock: stock,
+                        added: added,
+                        standard: std
+                      )
+                    );
+                  }else{
+                    for (var element in _materialItemDetailResponse) {
+                      if(element.materialId == item.materialId){
+                        element.added = added;
+                        element.stock = stock;
+                      }
+                    }
+                  }
                 },
               ),
             ),
@@ -154,7 +190,6 @@ class _CreateMaterialPageContentState extends State<CreateMaterialPageContent>
     } else if (state is GetMaterialItemSuccess) {
       setState(() {
         _isLoading = false;
-        items = state.items ?? [];
       });
     } else if (state is InitialState) {
       setState(() {

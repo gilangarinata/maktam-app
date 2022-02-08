@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:maktampos/services/model/material_detail_response.dart';
+import 'package:maktampos/services/model/material_item_response.dart';
 import 'package:maktampos/services/param/material_param.dart';
 import 'package:maktampos/ui/login/login_page.dart';
 import 'package:maktampos/ui/material/create/create_material_page_content.dart';
@@ -29,7 +30,7 @@ class _CreateMaterialPageState extends State<CreateMaterialPage> {
   MaterialParam _materialParam = MaterialParam();
   final List<MaterialItemParam> _itemDataParams = [];
   MaterialDetailResponse? _materialDetailResponse;
-
+  List<MaterialItem> materialItems = [];
   late MaterialBloc bloc;
 
   @override
@@ -38,6 +39,7 @@ class _CreateMaterialPageState extends State<CreateMaterialPage> {
     initData();
     bloc = BlocProvider.of<MaterialBloc>(context);
     getDetailData();
+    bloc.add(GetMaterialItems());
   }
 
   void getDetailData() {
@@ -64,6 +66,7 @@ class _CreateMaterialPageState extends State<CreateMaterialPage> {
 
     materialPageContent = CreateMaterialPageContent(
       materialDetailResponse: _materialDetailResponse,
+      materialItems: materialItems,
     );
 
     List<Widget> generateTabs() {
@@ -111,6 +114,11 @@ class _CreateMaterialPageState extends State<CreateMaterialPage> {
             setState(() {
               _isLoading = false;
               _materialDetailResponse = state.items;
+            });
+          }else if (state is GetMaterialItemSuccess) {
+            setState(() {
+              _isLoading = false;
+              materialItems = state.items ?? [];
             });
           } else if (state is CreateUpdateMaterialLoading) {
             setState(() {

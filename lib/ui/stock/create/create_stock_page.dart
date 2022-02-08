@@ -39,6 +39,7 @@ class _CreateStockPageState extends State<CreateStockPage> with SingleTickerProv
   final List<SpicesOrCupParam> _itemCups = [];
 
   var soldTotal = 0;
+  var deliveryTotal = 0;
 
   // late TabController controller;
 
@@ -67,7 +68,12 @@ class _CreateStockPageState extends State<CreateStockPage> with SingleTickerProv
   }
 
   void countIncome() {
-    int sum = _itemMilks
+    int sum = _itemMilks.where((element) => element.itemId == 25 || element.itemId == 26 || element.itemId == 27)
+        .map((e) => e.stock ?? 0)
+        .toList()
+        .fold(0, (p, c) => p + c);
+
+    int minus = _itemMilks.where((element) => element.itemId == 28 || element.itemId == 29)
         .map((e) => e.stock ?? 0)
         .toList()
         .fold(0, (p, c) => p + c);
@@ -85,7 +91,35 @@ class _CreateStockPageState extends State<CreateStockPage> with SingleTickerProv
         .fold(0, (p, c) => p + c);
 
     setState(() {
-      soldTotal = sum + sumMilkPlaceReceived - sumMilkPlaceTake;
+      soldTotal = sum + sumMilkPlaceReceived - sumMilkPlaceTake - minus;
+    });
+  }
+
+  void countDelivery() {
+    int sum = _itemMilks.where((element) => element.itemId == 25 || element.itemId == 26 || element.itemId == 27)
+        .map((e) => e.stock ?? 0)
+        .toList()
+        .fold(0, (p, c) => p + c);
+
+    int minus = _itemMilks.where((element) => element.itemId == 28 || element.itemId == 29)
+        .map((e) => e.stock ?? 0)
+        .toList()
+        .fold(0, (p, c) => p + c);
+
+    int sumMilkPlaceReceived = _itemMilkPlace
+        .where((element) => element.type == "receive")
+        .map((e) => e.stock ?? 0)
+        .toList()
+        .fold(0, (p, c) => p + c);
+
+    int sumMilkPlaceTake = _itemMilkPlace
+        .where((element) => element.type == "take")
+        .map((e) => e.stock ?? 0)
+        .toList()
+        .fold(0, (p, c) => p + c);
+
+    setState(() {
+      soldTotal = sum + sumMilkPlaceReceived - sumMilkPlaceTake - minus;
     });
   }
 
@@ -277,12 +311,19 @@ class _CreateStockPageState extends State<CreateStockPage> with SingleTickerProv
                   : Container(
                 padding: const EdgeInsets.all(18.0),
                 color: Colors.white,
-                    height: 120,
+                    height: 130,
                     child: Column(
                       children: [
                         Row(
                           children: [
                             Text("Stok Terjual Susu: "),
+                            Spacer(),
+                            Text(soldTotal.toString()),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Text("Pengiriman Susu: "),
                             Spacer(),
                             Text(soldTotal.toString()),
                           ],

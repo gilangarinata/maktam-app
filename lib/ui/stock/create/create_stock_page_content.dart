@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:maktampos/services/model/caterory_item_response.dart';
 import 'package:maktampos/services/model/stock_detail_response.dart';
 import 'package:maktampos/services/param/stock_param.dart';
+import 'package:collection/collection.dart'; // You have to add this manually, for some reason it cannot be added automatically
+
 
 class CreateStockPageContent extends StatefulWidget {
   List<Item> itemProduct;
@@ -37,10 +39,11 @@ class _CreateStockPageContentState extends State<CreateStockPageContent>
 
   List<Widget> generateItems(TextTheme _textTheme) {
     List<Widget> items = widget.itemProduct.map((item) {
-      int stock = 0;
-      int sold = 0;
-      TextEditingController _leftController = TextEditingController();
-      getInitialLeftValue(item, _leftController);
+      int stock = getInitialStockValue(item) ?? 0;
+      int sold = getInitialSoldValue(item) ?? 0;
+      TextEditingController _leftController = TextEditingController(
+        text: getInitialLeftValue(item)
+      );
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
         child: Column(
@@ -57,7 +60,7 @@ class _CreateStockPageContentState extends State<CreateStockPageContent>
                   child: Column(
                     children: [
                       TextFormField(
-                        initialValue: getInitialStockValue(item),
+                        initialValue: getInitialStockValue(item)?.toString(),
                         keyboardType: TextInputType.number,
                         decoration: const InputDecoration(
                           labelText: "Stok",
@@ -76,7 +79,9 @@ class _CreateStockPageContentState extends State<CreateStockPageContent>
                             widget.onCupChange(
                                 item.itemId ?? -1, stock, sold, id);
                           }
-                          _leftController.text = (stock - sold).toString();
+                          var left = (stock - sold);
+                          _leftController.text = left.toString();
+                          setLeftValue(item, left);
                         },
                       ),
                       Visibility(
@@ -87,7 +92,7 @@ class _CreateStockPageContentState extends State<CreateStockPageContent>
                                 height: 10,
                               ),
                               TextFormField(
-                                initialValue: getInitialSoldValue(item),
+                                initialValue: getInitialSoldValue(item)?.toString(),
                                 keyboardType: TextInputType.number,
                                 decoration: const InputDecoration(
                                   labelText: "Terjual",
@@ -104,8 +109,9 @@ class _CreateStockPageContentState extends State<CreateStockPageContent>
                                     widget.onCupChange(
                                         item.itemId ?? -1, stock, sold, id);
                                   }
-                                  _leftController.text =
-                                      (stock - sold).toString();
+                                  var left = (stock - sold);
+                                  _leftController.text = left.toString();
+                                  setLeftValue(item, left);
                                 },
                               ),
                               const SizedBox(
@@ -120,15 +126,7 @@ class _CreateStockPageContentState extends State<CreateStockPageContent>
                                   border: OutlineInputBorder(),
                                 ),
                                 onChanged: (value) {
-                                  int? id = getInitialStockId(item);
-                                  if (widget.categoryId == SPICES_CATEGORY_ID) {
-                                    widget.onSpicesChange(
-                                        item.itemId ?? -1, stock, sold, id);
-                                  } else if (widget.categoryId ==
-                                      CUP_CATEGORY_ID) {
-                                    widget.onCupChange(
-                                        item.itemId ?? -1, stock, sold, id);
-                                  }
+
                                 },
                               ),
                             ],
@@ -376,26 +374,53 @@ class _CreateStockPageContentState extends State<CreateStockPageContent>
     setupEdit();
   }
 
-  String getInitialStockValue(Item item) {
-    String initial = "";
+  int? getInitialStockValue(Item item) {
+    int? initial;
     StockDetailResponse? stockDetailResponse = widget.stockDetailResponse;
     if (stockDetailResponse != null) {
       if (widget.categoryId == MILK_CATEGORY_ID) {
         stockDetailResponse.milk?.forEach((element) {
           if (element.itemId == item.itemId) {
-            initial = element.stock.toString();
+            initial = element.stock;
           }
         });
       } else if (widget.categoryId == SPICES_CATEGORY_ID) {
         stockDetailResponse.spices?.forEach((element) {
           if (element.itemId == item.itemId) {
-            initial = element.stock.toString();
+            initial = element.stock;
           }
         });
       } else if (widget.categoryId == CUP_CATEGORY_ID) {
         stockDetailResponse.cups?.forEach((element) {
           if (element.itemId == item.itemId) {
-            initial = element.stock.toString();
+            initial = element.stock;
+          }
+        });
+      }
+    }
+    return initial;
+  }
+
+  int? getInitialSoldValue(Item item) {
+    int? initial;
+    StockDetailResponse? stockDetailResponse = widget.stockDetailResponse;
+    if (stockDetailResponse != null) {
+      if (widget.categoryId == MILK_CATEGORY_ID) {
+        stockDetailResponse.milk?.forEach((element) {
+          if (element.itemId == item.itemId) {
+            initial = element.stock;
+          }
+        });
+      } else if (widget.categoryId == SPICES_CATEGORY_ID) {
+        stockDetailResponse.spices?.forEach((element) {
+          if (element.itemId == item.itemId) {
+            initial = element.sold;
+          }
+        });
+      } else if (widget.categoryId == CUP_CATEGORY_ID) {
+        stockDetailResponse.cups?.forEach((element) {
+          if (element.itemId == item.itemId) {
+            initial = element.sold;
           }
         });
       }
@@ -429,21 +454,20 @@ class _CreateStockPageContentState extends State<CreateStockPageContent>
     }
     return initial;
   }
-
-  String getInitialSoldValue(Item item) {
+  String getInitialLeftValue(Item item) {
     String initial = "";
     StockDetailResponse? stockDetailResponse = widget.stockDetailResponse;
     if (stockDetailResponse != null) {
       if (widget.categoryId == SPICES_CATEGORY_ID) {
         stockDetailResponse.spices?.forEach((element) {
           if (element.itemId == item.itemId) {
-            initial = element.sold.toString();
+            initial = element.lefts.toString();
           }
         });
       } else if (widget.categoryId == CUP_CATEGORY_ID) {
         stockDetailResponse.cups?.forEach((element) {
           if (element.itemId == item.itemId) {
-            initial = element.sold.toString();
+            initial = element.lefts.toString();
           }
         });
       }
@@ -451,27 +475,52 @@ class _CreateStockPageContentState extends State<CreateStockPageContent>
     return initial;
   }
 
-  void getInitialLeftValue(Item item, TextEditingController controller) {
-    String initial = "";
+  void setLeftValue(Item item, int? left) {
     StockDetailResponse? stockDetailResponse = widget.stockDetailResponse;
     if (stockDetailResponse != null) {
       if (widget.categoryId == SPICES_CATEGORY_ID) {
-        stockDetailResponse.spices?.forEach((element) {
-          if (element.itemId == item.itemId) {
-            initial = element.lefts.toString();
-          }
-        });
+        var stockResponse = widget.stockDetailResponse?.spices?.firstWhereOrNull((element) => element.itemId == item.itemId);
+        if(stockResponse != null) {
+          stockDetailResponse.spices?.forEach((element) {
+            if (element.itemId == item.itemId) {
+              element.lefts = left;
+            }
+          });
+        }else{
+          stockDetailResponse.spices?.add(
+            Cup(
+              id: null,
+              itemId: item.itemId,
+              stock: null,
+              sold: null,
+              lefts: left
+            )
+          );
+        }
       } else if (widget.categoryId == CUP_CATEGORY_ID) {
-        stockDetailResponse.cups?.forEach((element) {
-          if (element.itemId == item.itemId) {
-            initial = element.lefts.toString();
-          }
-        });
+        var stockResponse = widget.stockDetailResponse?.cups?.firstWhereOrNull((element) => element.itemId == item.itemId);
+        if(stockResponse != null){
+          stockDetailResponse.cups?.forEach((element) {
+            if (element.itemId == item.itemId) {
+              element.lefts = left;
+            }
+          });
+        }else{
+          print("add");
+          stockDetailResponse.cups?.add(
+              Cup(
+                  id: null,
+                  itemId: item.itemId,
+                  stock: null,
+                  sold: null,
+                  lefts: left
+              )
+          );
+        }
       }
     }
-    controller.text = initial;
   }
-
+  
   void setupEdit() {
     StockDetailResponse? stockDetailResponse = widget.stockDetailResponse;
     if (stockDetailResponse != null) {
@@ -489,8 +538,10 @@ class _CreateStockPageContentState extends State<CreateStockPageContent>
   @override
   Widget build(BuildContext context) {
     final _textTheme = Theme.of(context).textTheme;
-    return ListView(
-      children: generateItems(_textTheme),
+    return SingleChildScrollView(
+      child: Column(
+        children: generateItems(_textTheme),
+      ),
     );
   }
 
