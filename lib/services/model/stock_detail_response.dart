@@ -36,6 +36,7 @@ class Cup {
     this.stock,
     this.sold,
     this.lefts,
+    this.standard
   });
 
   int? id;
@@ -43,6 +44,7 @@ class Cup {
   int? stock;
   int? sold;
   int? lefts;
+  int? standard;
 
   SpicesOrCupParam toSpicesOrCupParam(){
     return SpicesOrCupParam(
@@ -59,6 +61,7 @@ class Cup {
         stock: json["stock"],
         sold: json["sold"],
         lefts: json["lefts"],
+        standard: json["standard"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -67,6 +70,7 @@ class Cup {
         "stock": stock,
         "sold": sold,
         "lefts": lefts,
+        "standard" : standard
       };
 }
 
@@ -75,17 +79,20 @@ class Milk {
     this.id,
     this.stock,
     this.itemId,
+    this.standard
   });
 
   int? id;
   int? stock;
   int? itemId;
+  int? standard;
 
   MilkParam toMilkParam(){
     return MilkParam(
       id :id ?? -1,
       stock: stock ?? -1,
-      itemId: itemId ?? -1
+      itemId: itemId ?? -1,
+      standard: standard ?? -1
     );
   }
 
@@ -93,12 +100,14 @@ class Milk {
         id: json["id"],
         stock: json["stock"],
         itemId: json["itemId"],
+        standard: json["standard"],
       );
 
   Map<String, dynamic> toJson() => {
         "id": id,
         "stock": stock,
         "itemId": itemId,
+        "standard" : standard
       };
 }
 

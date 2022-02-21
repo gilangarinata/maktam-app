@@ -36,6 +36,7 @@ class _CreateStockPageContentState extends State<CreateStockPageContent>
   int MILK_CATEGORY_ID = 20;
   int SPICES_CATEGORY_ID = 22;
   int CUP_CATEGORY_ID = 21;
+  int ID_SUSU_DATANG = 11;
 
   List<Widget> generateItems(TextTheme _textTheme) {
     List<Widget> items = widget.itemProduct.map((item) {
@@ -44,6 +45,10 @@ class _CreateStockPageContentState extends State<CreateStockPageContent>
       TextEditingController _leftController = TextEditingController(
         text: getInitialLeftValue(item)
       );
+      TextEditingController _deliveryController = TextEditingController(
+          text: getInitialDeliveryValue(item)
+      );
+
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
         child: Column(
@@ -81,6 +86,7 @@ class _CreateStockPageContentState extends State<CreateStockPageContent>
                           }
                           var left = (stock - sold);
                           _leftController.text = left.toString();
+                          _deliveryController.text = ((item.standard ?? 0) - left).toString();
                           setLeftValue(item, left);
                         },
                       ),
@@ -111,6 +117,7 @@ class _CreateStockPageContentState extends State<CreateStockPageContent>
                                   }
                                   var left = (stock - sold);
                                   _leftController.text = left.toString();
+                                  _deliveryController.text = ((item.standard ?? 0) - left).toString();
                                   setLeftValue(item, left);
                                 },
                               ),
@@ -123,6 +130,21 @@ class _CreateStockPageContentState extends State<CreateStockPageContent>
                                 keyboardType: TextInputType.number,
                                 decoration: const InputDecoration(
                                   labelText: "Sisa",
+                                  border: OutlineInputBorder(),
+                                ),
+                                onChanged: (value) {
+
+                                },
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              TextFormField(
+                                controller: _deliveryController,
+                                enabled: false,
+                                keyboardType: TextInputType.number,
+                                decoration: const InputDecoration(
+                                  labelText: "Pengiriman",
                                   border: OutlineInputBorder(),
                                 ),
                                 onChanged: (value) {
@@ -475,6 +497,27 @@ class _CreateStockPageContentState extends State<CreateStockPageContent>
     return initial;
   }
 
+  String getInitialDeliveryValue(Item item) {
+    String initial = "";
+    StockDetailResponse? stockDetailResponse = widget.stockDetailResponse;
+    if (stockDetailResponse != null) {
+      if (widget.categoryId == SPICES_CATEGORY_ID) {
+        stockDetailResponse.spices?.forEach((element) {
+          if (element.itemId == item.itemId) {
+            initial = ((element.standard ?? 0) - (element.lefts ?? 0)).toString();
+          }
+        });
+      } else if (widget.categoryId == CUP_CATEGORY_ID) {
+        stockDetailResponse.cups?.forEach((element) {
+          if (element.itemId == item.itemId) {
+            initial = ((element.standard ?? 0) - (element.lefts ?? 0)).toString();
+          }
+        });
+      }
+    }
+    return initial;
+  }
+
   void setLeftValue(Item item, int? left) {
     StockDetailResponse? stockDetailResponse = widget.stockDetailResponse;
     if (stockDetailResponse != null) {
@@ -506,7 +549,6 @@ class _CreateStockPageContentState extends State<CreateStockPageContent>
             }
           });
         }else{
-          print("add");
           stockDetailResponse.cups?.add(
               Cup(
                   id: null,
@@ -518,9 +560,36 @@ class _CreateStockPageContentState extends State<CreateStockPageContent>
           );
         }
       }
+    }else{
+      //when create data
+      if (widget.categoryId == SPICES_CATEGORY_ID) {
+        widget.stockDetailResponse = StockDetailResponse(
+          spices: [
+            Cup(
+                id: null,
+                itemId: item.itemId,
+                stock: null,
+                sold: null,
+                lefts: left
+            )
+          ]
+        );
+      } else if (widget.categoryId == CUP_CATEGORY_ID) {
+        widget.stockDetailResponse = StockDetailResponse(
+            cups: [
+              Cup(
+                  id: null,
+                  itemId: item.itemId,
+                  stock: null,
+                  sold: null,
+                  lefts: left
+              )
+            ]
+        );
+      }
     }
   }
-  
+
   void setupEdit() {
     StockDetailResponse? stockDetailResponse = widget.stockDetailResponse;
     if (stockDetailResponse != null) {

@@ -73,11 +73,13 @@ class MilkParam {
     this.id,
     this.itemId,
     this.stock,
+    this.standard
   });
 
   int? id;
   int? itemId;
   int? stock;
+  int? standard;
 
   factory MilkParam.fromJson(Map<String, dynamic> json) => MilkParam(
         itemId: json["itemId"],

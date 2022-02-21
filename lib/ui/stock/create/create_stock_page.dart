@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:maktampos/services/model/caterory_item_response.dart';
@@ -96,30 +97,19 @@ class _CreateStockPageState extends State<CreateStockPage> with SingleTickerProv
   }
 
   void countDelivery() {
-    int sum = _itemMilks.where((element) => element.itemId == 25 || element.itemId == 26 || element.itemId == 27)
+    int? standard = _categoryItems.first.items?.where((element) => element.itemId == 25) //id susu datang
+        .first.standard;
+
+    int sumLeft = _itemMilks
+        .where((element) => element.itemId == 28 || element.itemId == 29) //id sisa matang & id sisa mentah
         .map((e) => e.stock ?? 0)
         .toList()
         .fold(0, (p, c) => p + c);
 
-    int minus = _itemMilks.where((element) => element.itemId == 28 || element.itemId == 29)
-        .map((e) => e.stock ?? 0)
-        .toList()
-        .fold(0, (p, c) => p + c);
-
-    int sumMilkPlaceReceived = _itemMilkPlace
-        .where((element) => element.type == "receive")
-        .map((e) => e.stock ?? 0)
-        .toList()
-        .fold(0, (p, c) => p + c);
-
-    int sumMilkPlaceTake = _itemMilkPlace
-        .where((element) => element.type == "take")
-        .map((e) => e.stock ?? 0)
-        .toList()
-        .fold(0, (p, c) => p + c);
+    print("standart: $standard  left: $sumLeft");
 
     setState(() {
-      soldTotal = sum + sumMilkPlaceReceived - sumMilkPlaceTake - minus;
+      deliveryTotal = (standard ?? 0) - sumLeft;
     });
   }
 
@@ -170,6 +160,7 @@ class _CreateStockPageState extends State<CreateStockPage> with SingleTickerProv
                   _itemMilkPlace.addAll(milkplaces);
                   _stockParam = _stockParam.copyWith(milkPlace: _itemMilkPlace);
                   countIncome();
+                  countDelivery();
                 },
                 item.categoryId,
                 item.items ?? [],
@@ -183,6 +174,7 @@ class _CreateStockPageState extends State<CreateStockPage> with SingleTickerProv
                     _itemMilks.add(itemMilkParam);
                     _stockParam = _stockParam.copyWith(milk: _itemMilks);
                     countIncome();
+                    countDelivery();
           }
         },
             (itemId, stock, sold, id) {
@@ -276,6 +268,7 @@ class _CreateStockPageState extends State<CreateStockPage> with SingleTickerProv
 
               bloc.add(GetCategoriesItems());
               countIncome();
+              countDelivery();
             });
           }
         },
@@ -325,7 +318,7 @@ class _CreateStockPageState extends State<CreateStockPage> with SingleTickerProv
                           children: [
                             Text("Pengiriman Susu: "),
                             Spacer(),
-                            Text(soldTotal.toString()),
+                            Text(deliveryTotal.toString()),
                           ],
                         ),
                         SizedBox(height: 10,),

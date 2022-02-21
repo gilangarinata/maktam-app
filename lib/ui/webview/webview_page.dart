@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:maktampos/ui/login/login_page.dart';
+import 'package:maktampos/ui/webview/pdf_view.dart';
 import 'package:maktampos/utils/screen_utils.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -119,7 +120,9 @@ class _WebViewExampleState extends State<WebViewExample> {
                 urlStr = urlStr.replaceAll("blob:", "");
               }
               print("downloadStart : " + urlStr);
-
+              // ScreenUtils(context).navigateTo(
+              //   PdfView("http://generate-pdf.susumaktam.com/generate-stock-cups?date=2022-02-09")
+              // );
               downloadNow(urlStr);
             },
             onConsoleMessage: (controller, message) {
