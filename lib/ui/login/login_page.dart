@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:maktampos/res/my_colors.dart';
 import 'package:maktampos/res/my_strings.dart';
 import 'package:maktampos/services/param/login_param.dart';
+import 'package:maktampos/ui-admin/screens/main/main_screen.dart';
 import 'package:maktampos/ui/dashboard/dashboard_page.dart';
 import 'package:maktampos/ui/login/login_bloc.dart';
 import 'package:maktampos/ui/login/login_event.dart';
@@ -38,7 +39,7 @@ class _LoginPageState extends State<LoginPage> {
       if (state.items?.role?.roleName == "outlet") {
         ScreenUtils(context).navigateTo(const DashboardPage());
       } else {
-        ScreenUtils(context).navigateTo(WebViewExample());
+        ScreenUtils(context).navigateTo(AdminMainScreen());
       }
     } else if (state is LoginLoading) {
       setState(() {

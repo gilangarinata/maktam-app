@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:maktampos/preferences/pref_data.dart';
+import 'package:maktampos/ui-admin/screens/main/main_screen.dart';
 import 'package:maktampos/ui/dashboard/dashboard_page.dart';
 import 'package:maktampos/ui/login/login_page.dart';
 import 'package:maktampos/ui/webview/webview_page.dart';
@@ -28,7 +29,7 @@ class _SplashScreenPageState extends State<SplashScreenPage> {
           ScreenUtils(context).navigateTo(DashboardPage(), replaceScreen: true);
         } else {
           ScreenUtils(context)
-              .navigateTo(WebViewExample(), replaceScreen: true);
+              .navigateTo(AdminMainScreen(), replaceScreen: true);
         }
       } else {
         ScreenUtils(context).navigateTo(LoginPage(), replaceScreen: true);

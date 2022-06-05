@@ -7,6 +7,12 @@ import 'package:maktampos/services/repository/authentication_repository.dart';
 import 'package:maktampos/services/repository/material_repository.dart';
 import 'package:maktampos/services/repository/selling_repository.dart';
 import 'package:maktampos/services/repository/stock_repository.dart';
+import 'package:maktampos/ui-admin/screens/dashboard/dasboard_bloc.dart';
+import 'package:maktampos/ui-admin/screens/maktam_bloc.dart';
+import 'package:maktampos/ui-admin/screens/product/product_bloc.dart';
+import 'package:maktampos/ui-admin/services/repository/dashboard_repository.dart';
+import 'package:maktampos/ui-admin/services/repository/maktam_repository.dart';
+import 'package:maktampos/ui-admin/services/repository/product_repository.dart';
 import 'package:maktampos/ui/login/login_bloc.dart';
 import 'package:maktampos/ui/login/login_page.dart';
 import 'package:maktampos/ui/material/material_bloc.dart';
@@ -22,6 +28,21 @@ void main() {
   runApp(
     MultiBlocProvider(
         providers: [
+          BlocProvider<DashboardBloc>(
+            create: (context) => DashboardBloc(
+              DashboardRepositoryImpl(DioClient().init(alice)),
+            ),
+          ),
+          BlocProvider<ProductBloc>(
+            create: (context) => ProductBloc(
+              ProductRepositoryImpl(DioClient().init(alice)),
+            ),
+          ),
+          BlocProvider<MaktamBloc>(
+            create: (context) => MaktamBloc(
+              MaktamRepositoryImpl(DioClient().init(alice)),
+            ),
+          ),
           BlocProvider<LoginBloc>(
             create: (context) => LoginBloc(
               AuthenticationRepositoryImpl(DioClient().init(kIsWeb ? null : alice)),

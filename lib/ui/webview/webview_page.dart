@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:maktampos/ui/login/login_page.dart';
-import 'package:maktampos/ui/webview/pdf_view.dart';
 import 'package:maktampos/utils/screen_utils.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -127,6 +126,18 @@ class _WebViewExampleState extends State<WebViewExample> {
             },
             onConsoleMessage: (controller, message) {
               print("console : " + message.message);
+              if(message.message.contains("goToOutlet")){
+                var outletName = message.message.substring(message.message.indexOf(":"), message.message.length);
+                print("outletName : " + outletName);
+
+                var name = outletName.replaceAll(" ", "");
+
+                var username = "${name}_admin";
+                var password = name;
+
+
+
+              }
             },
           ))
         ])),
