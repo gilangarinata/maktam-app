@@ -98,7 +98,7 @@ class _StockPageState extends State<StockPage> {
       MySnackbar(context)
           .errorSnackbar(state.message + " : " + state.code.toString());
       if (state.code == 401) {
-        ScreenUtils(context).navigateTo(const LoginPage(), replaceScreen: true);
+        ScreenUtils(context).navigateTo(LoginPage(), replaceScreen: true);
       }
       setState(() {
         _isLoading = false;

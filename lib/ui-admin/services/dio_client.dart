@@ -8,7 +8,7 @@ import 'constant.dart';
 import 'responses/login_response.dart';
 
 class DioClient {
-  Dio init(Alice? alice) {
+  Dio init(Alice? alice, {bool isNewApi = false}) {
     Dio _dio = Dio();
     _dio.interceptors.add(ApiInterceptors());
     if (alice != null) _dio.interceptors.add(alice.getDioInterceptor());
@@ -23,7 +23,11 @@ class DioClient {
           maxWidth: 90),
     );
     _dio.options.contentType = 'application/json';
-    _dio.options.baseUrl = Constant.baseUrl;
+    if(isNewApi){
+      _dio.options.baseUrl = Constant.baseUrl2;
+    }else{
+      _dio.options.baseUrl = Constant.baseUrl;
+    }
     _dio.options.connectTimeout = Constant.writeTimeout;
     _dio.options.receiveTimeout = Constant.readTimeout;
     return _dio;

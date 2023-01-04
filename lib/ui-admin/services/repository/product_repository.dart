@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:maktampos/ui-admin/res/var_constants.dart';
 import 'package:maktampos/ui-admin/services/param/category_param.dart';
 import 'package:maktampos/ui-admin/services/param/inventory_param.dart';
+import 'package:maktampos/ui-admin/services/param/material_item_param.dart';
 import 'package:maktampos/ui-admin/services/param/product_param.dart';
 import 'package:maktampos/ui-admin/services/responses/base_response.dart';
 import 'package:maktampos/ui-admin/services/responses/category_response.dart';
@@ -41,6 +42,11 @@ abstract class ProductRepository {
 
   //spices
   Future<List<ProductItem>?> getSpices();
+
+  //materials
+  Future<bool> deleteMaterial(int id);
+  Future<bool> updateMaterial(MaterialItemParam param);
+  Future<bool> createMaterial(MaterialItemParam param);
 }
 
 class ProductRepositoryImpl extends ProductRepository {
@@ -341,6 +347,70 @@ class ProductRepositoryImpl extends ProductRepository {
       var statusCode = ex.response?.statusCode ?? -4;
       var statusMessage = ex.message;
       print("gilang" + statusMessage);
+      throw ClientErrorException(statusMessage, statusCode);
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  @override
+  Future<bool> createMaterial(MaterialItemParam param) async {
+    try {
+      final response = await _dioClient.post(Constant.materialItem,data: param.toMap());
+      var statusCode = response.statusCode ?? -1;
+      var statusMessage = response.statusMessage ?? "Unknown Error";
+      if (statusCode == Constant.successCode) {
+        var isSuccess = BaseResponse.fromJson(response.data).success;
+        return isSuccess ?? false;
+      } else {
+        throw ClientErrorException(statusMessage, statusCode);
+      }
+    } on DioError catch (ex) {
+      var statusCode = ex.response?.statusCode ?? -4;
+      var statusMessage = ex.message;
+      throw ClientErrorException(statusMessage, statusCode);
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  @override
+  Future<bool> deleteMaterial(int id) async {
+    try {
+      final response = await _dioClient.delete(Constant.materialItem,queryParameters: {
+        "id" : id
+      });
+      var statusCode = response.statusCode ?? -1;
+      var statusMessage = response.statusMessage ?? "Unknown Error";
+      if (statusCode == Constant.successCode) {
+        var isSuccess = BaseResponse.fromJson(response.data).success;
+        return isSuccess ?? false;
+      } else {
+        throw ClientErrorException(statusMessage, statusCode);
+      }
+    } on DioError catch (ex) {
+      var statusCode = ex.response?.statusCode ?? -4;
+      var statusMessage = ex.message;
+      throw ClientErrorException(statusMessage, statusCode);
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  @override
+  Future<bool> updateMaterial(MaterialItemParam param) async {
+    try {
+      final response = await _dioClient.put(Constant.materialItem,data: param.toMap());
+      var statusCode = response.statusCode ?? -1;
+      var statusMessage = response.statusMessage ?? "Unknown Error";
+      if (statusCode == Constant.successCode) {
+        return true;
+      } else {
+        throw ClientErrorException(statusMessage, statusCode);
+      }
+    } on DioError catch (ex) {
+      var statusCode = ex.response?.statusCode ?? -4;
+      var statusMessage = ex.message;
       throw ClientErrorException(statusMessage, statusCode);
     } catch (e) {
       throw Exception(e);

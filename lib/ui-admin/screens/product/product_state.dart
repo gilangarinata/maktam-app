@@ -169,3 +169,41 @@ class DeleteCategoryLoading extends ProductState {
   @override
   List<Object> get props => [];
 }
+
+/*
+  delete material Data
+*/
+
+class DeleteMaterialSuccess extends ProductState {
+
+  DeleteMaterialSuccess();
+
+  @override
+  List<Object?> get props => [];
+}
+
+class DeleteMaterialLoading extends ProductState {
+  DeleteMaterialLoading();
+
+  @override
+  List<Object> get props => [];
+}
+
+/*
+  create material Data
+*/
+
+class CreateMaterialSuccess extends ProductState {
+
+  CreateMaterialSuccess();
+
+  @override
+  List<Object?> get props => [];
+}
+
+class CreateMaterialLoading extends ProductState {
+  CreateMaterialLoading();
+
+  @override
+  List<Object> get props => [];
+}

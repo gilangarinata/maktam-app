@@ -61,7 +61,8 @@ class MaktamRepositoryImpl extends MaktamRepository {
       var statusMessage = ex.message;
       print("gilang" + statusMessage);
       throw ClientErrorException(statusMessage, statusCode);
-    } catch (e) {
+    } catch ( e) {
+      print("gilang2" + e.toString());
       throw Exception(e);
     }
   }

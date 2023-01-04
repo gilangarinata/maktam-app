@@ -149,5 +149,47 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         yield FailedState("Gagal mengambil list produk, silahkan refresh ulang. ",0);
       }
     }
+
+    if(event is CreateMaterial){
+      try {
+        yield CreateMaterialLoading();
+        var success = await repository.createMaterial(event.param);
+        if(success){
+          yield CreateMaterialSuccess();
+        }else{
+          yield FailedState("Gagal Membuat material ",0);
+        }
+      } catch (e) {
+        yield FailedState("Gagal mengambil list produk, silahkan refresh ulang. ",0);
+      }
+    }
+
+    if(event is UpdateMaterial){
+      try {
+        yield CreateMaterialLoading();
+        var success = await repository.updateMaterial(event.param);
+        if(success){
+          yield CreateMaterialSuccess();
+        }else{
+          yield FailedState("Gagal Membuat material ",0);
+        }
+      } catch (e) {
+        yield FailedState("Gagal mengambil list produk, silahkan refresh ulang. ",0);
+      }
+    }
+
+    if(event is DeleteMaterial){
+      try {
+        yield DeleteMaterialLoading();
+        var success = await repository.deleteMaterial(event.id);
+        if(success){
+          yield DeleteMaterialSuccess();
+        }else{
+          yield FailedState("Gagal Membuat material ",0);
+        }
+      } catch (e) {
+        yield FailedState("Gagal mengambil list produk, silahkan refresh ulang. ",0);
+      }
+    }
   }
 }

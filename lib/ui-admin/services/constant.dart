@@ -21,6 +21,9 @@ class Constant {
   static const String outlet = "/api/v1/admin/master-data/outlet";
 
   static const String baseUrl = "http://api.susumaktam.com";
+  static const String baseUrl2 = "http://api2.susumaktam.com";
   static const String login = "/login";
+
+  static const String inventoryExpense = "/";
 
 }

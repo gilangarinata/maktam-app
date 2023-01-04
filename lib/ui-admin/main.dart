@@ -17,7 +17,7 @@ void main() {
         providers: [
           BlocProvider<DashboardBloc>(
             create: (context) => DashboardBloc(
-              DashboardRepositoryImpl(DioClient().init(alice)),
+              DashboardRepositoryImpl(DioClient().init(alice), DioClient().init(alice, isNewApi: true)),
             ),
           ),
           BlocProvider<ProductBloc>(

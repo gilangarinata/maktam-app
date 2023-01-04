@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:maktampos/ui-admin/services/param/category_param.dart';
-import 'package:maktampos/ui-admin/services/param/inventory_param.dart';
+import 'package:maktampos/ui-admin/services/param/material_item_param.dart';
 import 'package:maktampos/ui-admin/services/param/product_param.dart';
 
 abstract class ProductEvent extends Equatable {}
@@ -90,4 +90,29 @@ class GetSpices extends ProductEvent {
   List<Object> get props => [];
 
   GetSpices();
+}
+
+
+class UpdateMaterial extends ProductEvent {
+  MaterialItemParam param;
+  @override
+  List<Object> get props => [param];
+
+  UpdateMaterial(this.param);
+}
+
+class CreateMaterial extends ProductEvent {
+  MaterialItemParam param;
+  @override
+  List<Object> get props => [param];
+
+  CreateMaterial(this.param);
+}
+
+class DeleteMaterial extends ProductEvent {
+  int id;
+  @override
+  List<Object> get props => [id];
+
+  DeleteMaterial(this.id);
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:maktampos/ui-admin/screens/category/category_screen.dart';
 import 'package:maktampos/ui-admin/screens/cup/cup_screen.dart';
 import 'package:maktampos/ui-admin/screens/dashboard/dashboard_screen.dart';
+import 'package:maktampos/ui-admin/screens/material/material_screen.dart';
 import 'package:maktampos/ui-admin/screens/outlet/outlet_screen.dart';
 import 'package:maktampos/ui-admin/screens/product/product_screen.dart';
 import 'package:maktampos/ui-admin/screens/spices/spices_screen.dart';
@@ -90,7 +91,7 @@ class SideMenu extends StatelessWidget {
               ),
               SideMenuItem(
                 press: () {
-
+                  ScreenUtils(context).navigateTo(MaterialScreen(),replaceScreen: true);
                 },
                 title: "Material",
                 iconSrc: "assets/Icons/Trash.svg",

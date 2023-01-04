@@ -14,7 +14,10 @@ import 'package:maktampos/utils/screen_utils.dart';
 import 'package:maktampos/widget/progress_loading.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  LoginPage({this.username,this.password});
+
+  String? username;
+  String? password;
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -63,6 +66,17 @@ class _LoginPageState extends State<LoginPage> {
     bloc = context.read<LoginBloc>();
     _usernameController = TextEditingController();
     _passwordController = TextEditingController();
+
+    if (widget.username != null &&
+        widget.password != null) {
+      LoginParam loginParam =
+      LoginParam(widget.username!, widget.password!);
+      bloc.add(ProcessLogin(loginParam));
+
+      if (widget.username?.contains("admin") == true) {
+        _isAdmin = true;
+      }
+    }
   }
 
   @override

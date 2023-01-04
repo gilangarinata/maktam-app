@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -19,6 +21,8 @@ import 'package:maktampos/ui-admin/utils/my_snackbar.dart';
 
 
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:maktampos/ui/login/login_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../constants.dart';
 import '../../responsive.dart';
@@ -50,6 +54,11 @@ class _ProductScreenState extends State<UserScreen> {
     initDialog();
     bloc = BlocProvider.of<MaktamBloc>(context);
     getData();
+  }
+
+  void setIsTemp(bool isTemp) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool("TEMP", isTemp);
   }
 
   void initDialog(){
@@ -150,6 +159,10 @@ class _ProductScreenState extends State<UserScreen> {
                   ),
                 ),
               ),
+              Expanded(
+                flex: 1,
+                child: Container(),
+              )
             ],
           ),
           Divider(height: 30,),
@@ -159,6 +172,7 @@ class _ProductScreenState extends State<UserScreen> {
   }
 
   List<Widget> generateTable(BuildContext context){
+    Codec<String, String> stringToBase64 = utf8.fuse(base64);
     List<Widget> sellingItems = _userItems.map((user) => InkWell(
       onTap: (){
         Dialog editDialog = Dialog(
@@ -206,6 +220,29 @@ class _ProductScreenState extends State<UserScreen> {
                       fontSize: 14
                   ),
                 ),
+              ),
+              Expanded(
+                flex: 1,
+                child: IconButton(
+                  onPressed: (){
+                    setIsTemp(true);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => LoginPage(
+                          username: user.username,
+                          password: utf8.decode(base64Url.decode(user.password ?? "")),
+                        ),
+                      ),
+                    ).then((value) {
+                      setIsTemp(false);
+                    });
+                  },
+                  icon: Icon(
+                      Icons.other_houses,
+                    color: MyColors.grey_60,
+                  ),
+                )
               ),
             ],
           ),

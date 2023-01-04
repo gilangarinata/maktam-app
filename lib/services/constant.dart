@@ -8,6 +8,7 @@ class Constant {
   static const int readTimeout = 6000;
   static const int writeTimeout = 7000;
   static const String baseUrl = "http://api.susumaktam.com";
+  static const String baseUrl2 = "http://api2.susumaktam.com";
   static const String login = "/login";
   static const String selling = "/api/v1/outlet/selling";
   static const String stock = "/api/v1/outlet/stock";

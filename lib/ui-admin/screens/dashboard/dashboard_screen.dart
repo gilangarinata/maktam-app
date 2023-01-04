@@ -16,6 +16,7 @@ import 'package:maktampos/ui-admin/screens/dashboard/dashboard_state.dart';
 import 'package:maktampos/ui-admin/screens/email/email_screen.dart';
 import 'package:maktampos/ui-admin/screens/main/components/email_card.dart';
 import 'package:maktampos/ui-admin/services/param/inventory_param.dart';
+import 'package:maktampos/ui-admin/services/responses/inventory_expense_response.dart';
 import 'package:maktampos/ui-admin/services/responses/material_item_response.dart';
 import 'package:maktampos/ui-admin/services/responses/product_response.dart';
 import 'package:maktampos/ui-admin/services/responses/stock_response.dart';
@@ -48,14 +49,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
   late DashboardBloc bloc;
   bool _summaryIsLoading = true;
   bool _sellingIsLoading = true;
+  bool _inventoryExpenseIsLoading = false;
   bool _stockIsLoading = true;
   bool _materialIsLoading = true;
   bool _updateInventoryLoading = false;
+  bool addInventoryExpenseLoading = false;
   SummaryResponse? _summaryResponse;
   List<ProductItem> _productResponse = [];
   StockResponse? _stockResponse;
   List<MaterialItem> _materialItems = [];
   List<MaterialItem> _inventoryItems = [];
+  List<InventoryExpenseResponse> _inventoryExpenseItems = [];
+  String? inventoryLocation = null;
+  int? inventoryTotal = null;
 
   //params
   List<InventoryParam> _inventoryParams = [];
@@ -79,6 +85,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     bloc.add(GetStocks(selectedDate));
     bloc.add(GetMaterials(selectedDate));
     bloc.add(GetInventory(selectedDate));
+    bloc.add(GetInventoryExpense(selectedDate));
   }
 
   void resetData(){
@@ -88,6 +95,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       _stockResponse = null;
       _materialItems = [];
       _inventoryItems = [];
+      _inventoryExpenseItems = [];
     });
   }
 
@@ -100,9 +108,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
       setState(() {
         _sellingIsLoading = true;
       });
+    }else if (state is AddInventoryExpenseLoading) {
+      setState(() {
+        addInventoryExpenseLoading = true;
+      });
+    }else if (state is DeleteInventoryExpenseLoading) {
+      setState(() {
+        addInventoryExpenseLoading = true;
+      });
     }else if (state is GetStockLoading) {
       setState(() {
         _stockIsLoading = true;
+      });
+    }else if (state is GetInventoryExpenseLoading) {
+      setState(() {
+        _inventoryExpenseIsLoading = true;
       });
     }else if (state is GetMaterialLoading) {
       setState(() {
@@ -123,6 +143,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
       setState(() {
         _summaryIsLoading = false;
         _summaryResponse = state.items;
+      });
+    }else if (state is GetInventoryExpenseSuccess) {
+      /*
+        Get summary
+       */
+      setState(() {
+        _inventoryExpenseIsLoading = false;
+        _inventoryExpenseItems = state.materialItems;
       });
     } else if (state is GetSellingSuccess) {
       /*
@@ -148,6 +176,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
         _materialIsLoading = false;
         _materialItems = state.materialItems;
       });
+    }else if (state is AddInventoryExpenseSuccess) {
+      /*
+        Get materials
+       */
+      setState(() {
+        addInventoryExpenseLoading = false;
+      });
+      bloc.add(GetInventoryExpense(selectedDate));
+    }else if (state is DeleteInventoryExpenseSuccess) {
+      /*
+        Get materials
+       */
+      setState(() {
+        addInventoryExpenseLoading = false;
+      });
+      bloc.add(GetInventoryExpense(selectedDate));
     }else if (state is GetInventorySuccess) {
       /*
         Get inventories
@@ -173,6 +217,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       setState(() {
         _summaryIsLoading = false;
         _sellingIsLoading = false;
+        _inventoryExpenseIsLoading = false;
         resetData();
       });
       if (state.code == 401) {
@@ -273,7 +318,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: ListView(
                       children: [
                         SummaryCard(summaryResponse: _summaryResponse,),
-                        InventoryExpense(),
+                        _inventoryExpenseIsLoading ? ProgressLoading() : InventoryExpense(
+                          items: _inventoryExpenseItems,
+                          onValueChanges: (location, total){
+                            if(location != null){
+                              inventoryLocation = location;
+                            }
+
+                            if(total != null){
+                              inventoryTotal = total;
+                            }
+                          },
+                          press: () {
+                            if(inventoryLocation != null && inventoryTotal != null){
+                              bloc.add(AddInventoryExpense(selectedDate, inventoryLocation!, inventoryTotal!));
+                            }
+                          },
+                          isLoading: addInventoryExpenseLoading,
+                          onDelete: (id){
+                            if(id != null){
+                              bloc.add(DeleteInventoryExpense(id));
+                            }
+                          },
+                        ),
                         if(_sellingIsLoading) ProgressLoading() else
                         SellingCard(productResponse: _productResponse,),
                         if(_stockIsLoading) ProgressLoading() else

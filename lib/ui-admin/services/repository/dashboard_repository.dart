@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:maktampos/ui-admin/res/var_constants.dart';
 import 'package:maktampos/ui-admin/services/param/inventory_param.dart';
 import 'package:maktampos/ui-admin/services/responses/base_response.dart';
+import 'package:maktampos/ui-admin/services/responses/inventory_expense_response.dart';
 import 'package:maktampos/ui-admin/services/responses/inventory_response.dart';
 import 'package:maktampos/ui-admin/services/responses/login_response.dart';
 import 'package:maktampos/ui-admin/services/responses/material_item_response.dart';
@@ -25,13 +26,17 @@ abstract class DashboardRepository {
   Future<List<MaterialItem>> getMaterials(String date);
   Future<List<MaterialItem>> getInventory(String date);
   Future<bool> updateInventory(InventoryParam param);
+
+  Future<List<InventoryExpenseResponse>> getInventoryExpense(String date);
+  Future<bool> addInventoryExpense(String location, int total, String date);
+  Future<bool> deleteInventoryExpense(int id);
 }
 
 class DashboardRepositoryImpl extends DashboardRepository {
   final Dio _dioClient;
+  final Dio _dioClient2;
 
-
-  DashboardRepositoryImpl(this._dioClient);
+  DashboardRepositoryImpl(this._dioClient,this._dioClient2);
 
   @override
   Future<SummaryResponse?> getSummary(String date) async {
@@ -215,7 +220,11 @@ class DashboardRepositoryImpl extends DashboardRepository {
       if (statusCode == Constant.successCode) {
         var materialResponse = MaterialItemResponse.fromJson(response.data)
             .items;
-        return await getMaterialData(date, materialResponse);
+        if(date.isEmpty){
+          return materialResponse ?? [];
+        }else{
+          return await getMaterialData(date, materialResponse);
+        }
       } else {
         throw ClientErrorException(statusMessage, statusCode);
       }
@@ -328,6 +337,79 @@ class DashboardRepositoryImpl extends DashboardRepository {
     } on DioError catch (ex) {
       var statusCode = ex.response?.statusCode ?? -4;
       var statusMessage = ex.message;
+      throw ClientErrorException(statusMessage, statusCode);
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  @override
+  Future<List<InventoryExpenseResponse>> getInventoryExpense(String date) async {
+    try {
+      final response = await _dioClient2.get(Constant.inventoryExpense,queryParameters: {
+        "date" : date
+      });
+      var statusCode = response.statusCode ?? -1;
+      var statusMessage = response.statusMessage ?? "Unknown Error";
+      if (statusCode == Constant.successCode) {
+        var responses = List<InventoryExpenseResponse>.from(response.data.map((e) => InventoryExpenseResponse.fromJson(e)));
+        return responses;
+      } else {
+        throw ClientErrorException(statusMessage, statusCode);
+      }
+    } on DioError catch (ex) {
+      var statusCode = ex.response?.statusCode ?? -4;
+      var statusMessage = ex.message;
+      print("gilang" + statusMessage);
+      throw ClientErrorException(statusMessage, statusCode);
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  @override
+  Future<bool> addInventoryExpense(String location, int total, String date) async {
+    try {
+      final response = await _dioClient2.post(Constant.inventoryExpense,
+          data: {
+        "name" : location,
+            "total" : total,
+            "date" : date
+          });
+      var statusCode = response.statusCode ?? -1;
+      var statusMessage = response.statusMessage ?? "Unknown Error";
+      if (statusCode == Constant.successCode) {
+        return true;
+      } else {
+        print("get selling failed");
+        throw ClientErrorException(statusMessage, statusCode);
+      }
+    } on DioError catch (ex) {
+      var statusCode = ex.response?.statusCode ?? -4;
+      var statusMessage = ex.message;
+      throw ClientErrorException(statusMessage, statusCode);
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+
+  @override
+  Future<bool> deleteInventoryExpense(int id) async {
+    try {
+      final response = await _dioClient2.get(Constant.inventoryExpense,queryParameters: {
+        "id" : id
+      });
+      var statusCode = response.statusCode ?? -1;
+      var statusMessage = response.statusMessage ?? "Unknown Error";
+      if (statusCode == Constant.successCode) {
+        return true;
+      } else {
+        throw ClientErrorException(statusMessage, statusCode);
+      }
+    } on DioError catch (ex) {
+      var statusCode = ex.response?.statusCode ?? -4;
+      var statusMessage = ex.message;
+      print("gilang" + statusMessage);
       throw ClientErrorException(statusMessage, statusCode);
     } catch (e) {
       throw Exception(e);

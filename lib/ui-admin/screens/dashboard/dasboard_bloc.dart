@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:maktampos/ui-admin/screens/dashboard/dasboard_event.dart';
+import 'package:maktampos/ui-admin/services/responses/inventory_expense_response.dart';
 import 'package:maktampos/ui-admin/services/responses/material_item_response.dart';
 import 'package:maktampos/ui-admin/services/responses/product_response.dart';
 import 'package:maktampos/ui-admin/services/responses/stock_response.dart';
@@ -53,9 +54,15 @@ class DashboardBloc extends Bloc<DasboardEvent, DashboardState> {
     if (event is GetMaterials) {
       try {
         yield GetMaterialLoading();
-        var formattedDate = DateFormat("yyyy-MM-dd").format(event.date);
-        List<MaterialItem> item = await repository.getMaterials(formattedDate);
-        yield GetMaterialSuccess(materialItems: item);
+        var date = event.date;
+        if(date != null){
+          var formattedDate = DateFormat("yyyy-MM-dd").format(date);
+          List<MaterialItem> item = await repository.getMaterials(formattedDate);
+          yield GetMaterialSuccess(materialItems: item);
+        }else{
+          List<MaterialItem> item = await repository.getMaterials("");
+          yield GetMaterialSuccess(materialItems: item);
+        }
       } catch (e) {
         yield FailedState("Get stock Failed: ${e.toString()} ",0);
       }
@@ -81,6 +88,39 @@ class DashboardBloc extends Bloc<DasboardEvent, DashboardState> {
         } else {
           yield FailedState("gagal update",0);
         }
+      } catch (e) {
+        yield FailedState("Get stock Failed: ${e.toString()} ",0);
+      }
+    }
+
+
+    if (event is GetInventoryExpense) {
+      try {
+        yield GetInventoryExpenseLoading();
+        var formattedDate = DateFormat("yyyy-MM-dd").format(event.date);
+        List<InventoryExpenseResponse> item = await repository.getInventoryExpense(formattedDate);
+        yield GetInventoryExpenseSuccess(materialItems: item);
+      } catch (e) {
+        yield FailedState("Get stock Failed: ${e.toString()} ",0);
+      }
+    }
+
+    if (event is AddInventoryExpense) {
+      try {
+        yield AddInventoryExpenseLoading();
+        var formattedDate = DateFormat("yyyy-MM-dd").format(event.date);
+        await repository.addInventoryExpense(event.location,event.total,formattedDate);
+        yield AddInventoryExpenseSuccess();
+      } catch (e) {
+        yield FailedState("Get stock Failed: ${e.toString()} ",0);
+      }
+    }
+
+    if (event is DeleteInventoryExpense) {
+      try {
+        yield DeleteInventoryExpenseLoading();
+        await repository.deleteInventoryExpense(event.id);
+        yield DeleteInventoryExpenseSuccess();
       } catch (e) {
         yield FailedState("Get stock Failed: ${e.toString()} ",0);
       }

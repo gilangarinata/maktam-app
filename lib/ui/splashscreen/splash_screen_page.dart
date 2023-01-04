@@ -18,8 +18,15 @@ class SplashScreenPage extends StatefulWidget {
 }
 
 class _SplashScreenPageState extends State<SplashScreenPage> {
+
+  void setIsTemp(bool isTemp) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool("TEMP", isTemp);
+  }
+
   @override
   Widget build(BuildContext context) {
+    setIsTemp(false);
     Future<void> _getPrefData() async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       bool isLoggedIn = prefs.containsKey(PrefData.accessToken);

@@ -19,6 +19,7 @@ class UserResponse {
     this.roleId,
     this.roleName,
     this.address,
+    this.password
   });
 
   int? id;
@@ -30,18 +31,23 @@ class UserResponse {
   int? roleId;
   String? roleName;
   String? address;
+  String? password;
 
-  factory UserResponse.fromJson(Map<String, dynamic> json) => UserResponse(
-    id: json["id"],
-    name: json["name"],
-    username: json["username"],
-    phoneNumber: json["phone_number"],
-    outletId: json["outletId"],
-    outletName: json["outletName"],
-    roleId: json["roleId"],
-    roleName: json["roleName"],
-    address: json["address"],
-  );
+  factory UserResponse.fromJson(Map<String, dynamic> json) {
+
+    return UserResponse(
+        id: json["id"],
+        name: json["name"],
+        username: json["username"],
+        phoneNumber: json["phone_number"],
+        outletId: json["outletId"],
+        outletName: json["outletName"],
+        roleId: json["roleId"],
+        roleName: json["roleName"],
+        address: json["address"],
+        password: json["password_encode"]
+    );
+  }
 
   Map<String, dynamic> toJson() => {
     "id": id,

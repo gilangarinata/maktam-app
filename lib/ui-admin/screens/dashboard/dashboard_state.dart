@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:maktampos/ui-admin/services/responses/inventory_expense_response.dart';
 import 'package:maktampos/ui-admin/services/responses/material_item_response.dart';
 import 'package:maktampos/ui-admin/services/responses/product_response.dart';
 import 'package:maktampos/ui-admin/services/responses/stock_response.dart';
@@ -149,3 +150,52 @@ class UpdateInventoryLoading extends DashboardState {
   List<Object> get props => [];
 }
 
+/*
+  Get inventory expense
+*/
+
+class GetInventoryExpenseSuccess extends DashboardState {
+  final List<InventoryExpenseResponse> materialItems;
+
+  GetInventoryExpenseSuccess({required this.materialItems});
+
+  @override
+  List<Object?> get props => [materialItems];
+}
+
+class GetInventoryExpenseLoading extends DashboardState {
+  GetInventoryExpenseLoading();
+
+  @override
+  List<Object> get props => [];
+}
+
+
+
+class AddInventoryExpenseSuccess extends DashboardState {
+  AddInventoryExpenseSuccess();
+
+  @override
+  List<Object?> get props => [];
+}
+
+class AddInventoryExpenseLoading extends DashboardState {
+  AddInventoryExpenseLoading();
+
+  @override
+  List<Object> get props => [];
+}
+
+class DeleteInventoryExpenseSuccess extends DashboardState {
+  DeleteInventoryExpenseSuccess();
+
+  @override
+  List<Object?> get props => [];
+}
+
+class DeleteInventoryExpenseLoading extends DashboardState {
+  DeleteInventoryExpenseLoading();
+
+  @override
+  List<Object> get props => [];
+}
